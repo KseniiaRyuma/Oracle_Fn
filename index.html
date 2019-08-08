@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Oracle Cloud Infrastructure API Gateway - QuickStart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How to get started using API Gateway.">
+    <script src="common/js/lib/jquery.min.js"></script>
+    <script src="common/js/lib/jquery-ui.min.js"></script>
+      
+    <script src="common/js/lib/TweenMax.min.js"></script>
+    <script src="common/js/lib/jquery.gsap.min.js"></script>
+    <script src="common/js/lib/CSSPlugin.min.js"></script>
+    <script src="common/js/lib/ScrollMagic.min.js"></script>
+    <script src="common/js/lib/animation.gsap.js"></script>
+    <script src="common/js/lib/jquery.ScrollMagic.js"></script>
+    <script src="common/js/lib/debug.addIndicators.min.js"></script>
+    <link href="common/js/lib/jquery-ui.css" rel="stylesheet" type="text/css">
+    <link href="common/css/scrolling_gs.css" rel="stylesheet" type="text/css"
+
+      id="StyleSheet">
+    <link href="common/css/popup.css" rel="stylesheet" type="text/css">
+    <script src="common/js/scrolling.js"></script>
+    <style type="text/css" media="print">
+            BODY {display:none;visibility:hidden;}
+        </style>
+    <script>
+        $(".displayPopup").each(function(){
+            console.log("popup clicked");
+        });
+            var mode = "";
+            $(window).on("resize", function () {
+                if ($(window).width() > 1000) {
+                    //Desktop mode
+                    mode = setMode(mode, "DESKTOP", function () {
+                        $("#StyleSheet").attr("href", "common/css/scrolling_gs.css");
+                        $(".phone").hide();
+                        $(".tablet").hide();
+                        $(".desktop").show();
+                    });
+                } else if ($(window).width() > 700) {
+                    //portrait mode
+                    mode = setMode(mode, "TAB", function () {
+                        $("#StyleSheet").attr("href", "common/css/scrolling-tab_gs.css");
+                        $(".phone").hide();
+                        $(".desktop").hide();
+                        $(".tablet").show();
+                    });
+                } else {
+                    //Phone mode
+                    mode = setMode(mode, "PHONE", function () {
+                        $("#StyleSheet").attr("href", "common/css/scrolling-phone_gs.css");
+                        $(".tablet").hide();
+                        $(".desktop").hide();
+                        $(".phone").show();
+                    });
+                }
+            });
+            $(window).trigger("resize");
+            function setMode(m1, m2, callback) {
+                if (m1 !== m2) {
+                    callback();
+                }
+                return m2;
+            }
+        </script>
+
+  </head>
+  <body> <logo> <img src="common/images/o-redbadge-digital-master.png"
+
+        width="150"> </logo>
+    <header id="side-header">
+      <div class="text_link">
+        <a href="index_text.html" target="_blank" tabindex="0">Text Version</a>
+      </div>
+      <p> 
+        <img src="common/images/apigw-icon.png" alt="API Gateway logo" width="60">
+      </p>
+      <div class="h0" id="bigTitle">Oracle Functions: Serverless On Oracle Cloud<br> - Developer's Guide To Getting Started</div>
+      <h1 id="title-trigger">Set up, creation, and deployment</h1>
+    </header>
+<!--
+    <nav>
+      <div class="displayPopup" title="Overview" data-popup="popup1">
+        <p>Overview</p>
+      </div>
+    </nav>
+-->
+    <nav2>
+      <p><a href="API_Gateway_Overview.pdf" target="_blank">Download PDF</a></p>
+    </nav2>
+    <article>
+      <section>
+        <div class="overview">
+          <h3>Overview of Oracle Functions</h3>
+          <ul class="breadcrumb">
+            <li><a href="#" onclick="jumpTo('step1-0')"><b>0. </b>What is Oracle Function</a></li>
+            <li><a href="#" onclick="jumpTo('step1-1')"><b>1. </b>Pay-per-Use</a></li>
+            <li><a href="#" onclick="jumpTo('step1-2')"><b>2. </b>Open Source</a></li>
+            <li><a href="#" onclick="jumpTo('step1-3')"><b>3. </b>Container Native</a></li>
+            <li><a href="#" onclick="jumpTo('step1-4')"><b>4. </b>Getting Started</a></li>
+          </ul>
+          <br>
+          <h3>0. Prerequisit: Set up your <strong>tenancy</strong></h3>
+          <ul class="breadcrumb">
+            <li><a href="#" onclick="jumpTo('step0-1')"><b>1. </b>Create groups and users</a></li>
+            <li><a href="#" onclick="jumpTo('step0-2')"><b>2. </b>Create compartment</a></li>
+            <li><a href="#" onclick="jumpTo('step0-3')"><b>3. </b>Create VCN and subnets</a></li>
+            <li><a href="#" onclick="jumpTo('step0-4')"><b>4. </b>Create IAM policies</a></li>
+          </ul>
+          <h3>A. Set up your <strong>client</strong></h3>
+          <ul class="breadcrumb">
+            <li><a href="#" onclick="jumpTo('step2-1')"><b>1. </b>Set up signing key</a></li>
+            <li><a href="#" onclick="jumpTo('step2-2')"><b>2. </b>Set up OCI profile</a></li>
+            <li><a href="#" onclick="jumpTo('step2-3')"><b>3. </b>Install and start Docker</a></li>
+            <li><a href="#" onclick="jumpTo('step2-4')"><b>4. </b>Install Fn Project CLI</a></li>
+            <li><a href="#" onclick="jumpTo('step2-5')"><b>5. </b>Create and configure CLI context</a></li>
+            <li><a href="#" onclick="jumpTo('step2-6')"><b>6. </b>Generate auth token</a></li>
+            <li><a href="#" onclick="jumpTo('step2-7')"><b>7. </b>Log in to Registry</a></li>
+            <li><a href="#" onclick="jumpTo('step2-8')"><b>8. </b>Set up oci-curl</a></li>              
+          </ul>
+          <br>
+          <h3>B. Create, deploy, and invoke your <strong>function</strong></h3>
+          <ul class="breadcrumb">
+            <li><a href="#" onclick="jumpTo('step3-1')"><b>1. </b>Create your first application</a></li>
+            <li><a href="#" onclick="jumpTo('step3-2')"><b>2. </b>Create your first function</a></li>
+            <li><a href="#" onclick="jumpTo('step3-3')"><b>3. </b>Deploy your first function</a></li>
+            <li><a href="#" onclick="jumpTo('step3-4')"><b>4. </b>Invoke your first function</a></li>
+<!--            <li><a href="#" onclick="jumpTo('step3-5')"><b>5. </b>Next steps</a></li>-->
+          </ul>
+          <br>
+          <h3>C. Create, deploy, and call your <strong>API</strong></h3>
+          <ul class="breadcrumb">
+<!--            <li><a href="#" onclick="jumpTo('step4-1')"><b>1. </b>Create your first API gateway</a></li>-->
+            <li><a href="#" onclick="jumpTo('step4-1')"><b>1. </b>Define your first API deployment</a></li>
+            <li><a href="#" onclick="jumpTo('step4-3')"><b>2. </b>Create your first API deployment</a></li>
+            <li><a href="#" onclick="jumpTo('step4-4')"><b>3. </b>Call your first API</a></li>
+            <li><a href="#" onclick="jumpTo('step4-5')"><b>4. </b>Next steps</a></li>
+          </ul>
+        </div>
+        <div id="scrollDown">
+          <div class="scrollDown" align="center"> <i>Scroll down to find out more</i><br>
+            <div class="s_brk"><i>Click images for larger versions</i></div>
+            <img src="common/images/downarrow_blue.png" id="jumpingArrow"
+
+              alt="arrow" height="48" width="48"> </div>
+        </div>
+      </section>
+      <section id="navTrigger" class="anim">
+        <h2 data-overview="step1Overview">A. Overview</h2>
+        <div class="white_box" id="step1-0">
+          <h4><span class="lrg_number_circle">0</span>What is Oracle Function</h4>
+          <br>
+         
+          <p><strong>Oracle Functions</strong> is a serverless platform that makes it easy for developers to write and deploy code without having to worry about provisioning or managing compute and network infrastructure. Oracle Functions manages all the underlying infrastructure automatically and scales it elastically to service incoming requests. With Oracle Functions, developers can focus on writing code that delivers business value</p>
+          <br>
+          
+        </div>
+        <div class="white_box" id="step1-1">
+          <h4><span class="lrg_number_circle">1</span>Pay-per-Use</h4>
+          <br>
+          <p>Customers are charged only for the resources used while a function is running. There’s no charge for idle time! This approach is different from the traditional one of deploying code to a user provisioned and managed virtual machine or container that is typically running 24x7 and which must be paid for even when it’s idle. Pay-per-use makes Oracle Functions an ideal platform for intermittent workloads or workloads with spiky usage patterns.</p>
+          
+        </div>
+        <div class="white_box" id="step1-2">
+          <h4><span class="lrg_number_circle">2</span>Open Source</h4>
+          <br>
+          <p>Rather than building yet another proprietary cloud functions platform, Oracle chose to invest in the Apache 2.0 licensed open source Fn Project and build Oracle Functions on Fn. With this approach, code written for Oracle Functions will run on any Fn server. Functions can be deployed to Oracle Functions or to a customer managed Fn cluster on-premises or even o</p>
+        </div>
+        <div class="white_box" id="step1-3">
+          <h4><span class="lrg_number_circle">3</span>Container Native</h4>
+          <br>
+          <p>Unlike most other functions platforms, Oracle Functions is container native with functions packaged as Docker container images. This approach supports a highly productive developer experience for new users while enabling power users to fully customize their function runtime environment, including installing any required native libraries.</p>
+        </div>
+        <div class="white_box" id="step1-4">
+          <h4><span class="lrg_number_circle">4</span>Getting Started</h4>
+          <br>
+          <p>By folowing this guide, you will be able <br> <strong>1.</strong>  To create your first serverless function using Oracle Cloud Infstructure.<br><strong>2.</strong>  Create, deploy, and call your API on an API gateway</p>
+
+          <br>
+         </div>
+      </section>
+      <section id="navTrigger" class="anim">
+        <h2 data-overview="step1Overview">0. Prerequisite: Set up your <strong>tenancy</strong></h2>
+          
+        <!-- The Modal -->
+            <div id="myModal" class="modal">
+              <span class="close">&times;</span>
+              <img class="modal-content" id="img">
+              <div id="caption"></div>
+            </div>  
+            
+        <div class="white_box" id="step0-1">
+          <h4><span class="lrg_number_circle">1</span>Create groups and users</h4>
+          <br>
+
+            <div><img id="faas-groups-03" src="common/images/faas-groups-03.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>         
+
+          <p>If suitable users and groups don't exist already, log in to the Console as a tenancy administrator and under <strong>Governance and Administration</strong>, go to <strong>Identity</strong> and then:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create a new group by clicking <strong>Groups</strong> and then <strong>Create Group</strong>.</p>
+          <br>
+          <div><img id="faas-users-04" src="common/images/faas-users-04.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+          <div><img id="faas-user2group-03" src="common/images/faas-user2group-03.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Create a new user by clicking <strong>Users</strong> and then <strong>Create User</strong>.</p>
+          <br>
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Add a user to a group by clicking <strong>Groups</strong>, then the name of the group, and then <strong>Add User to Group</strong>.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatinggroupsusers.htm" target="_blank">documentation</a> for more details.</p>
+<br>
+        </div>
+        <div class="white_box" id="step0-2">
+          <h4><span class="lrg_number_circle">2</span>Create compartment</h4>
+          <br>
+            <div><img id="faas-compartments-04" src="common/images/faas-compartments-04.png" class="img_right"
+
+                  style="width: 150px;" onclick="displayPopup(id)"></div>        
+            
+          <p>If a suitable compartment in which to create network resources and Oracle Functions resources doesn't exist already, log in to the Console as a tenancy administrator and under <strong>Governance and Administration</strong>, go to <strong>Identity</strong> and then:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Click <strong>Compartments</strong> and then <strong>Create Compartment</strong>.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingcompartment.htm" target="_blank">documentation</a> for more details.</p>
+<br>
+        </div>
+        <div class="white_box" id="step0-3">
+          <h4><span class="lrg_number_circle">3</span>Create VCN and subnets</h4>
+          <br>
+            <div><img id="faas-vcn-03" src="common/images/faas-vcn-03.png" class="img_right"
+
+                      style="width: 150px;" onclick="displayPopup(id)"></div>            
+            
+          <p>If a suitable VCN in which to create network resources doesn't exist already, log in to the Console as a tenancy administrator and under <strong>Core Infrastructure</strong>, go to <strong>Networking</strong> and then:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Click <strong>Virtual Cloud Networks</strong> and choose a compartment.</p>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Click <strong>Create Virtual Cloud Network</strong>, enter a name, and select the <strong>Create Virtual Cloud Network Plus Related Resources</strong> option.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingvcn.htm" target="_blank">documentation</a> for more details.</p>
+ </div>
+        <div class="white_box" id="step0-4">
+          <h4><span class="lrg_number_circle">4</span>Create IAM policies</h4>
+          <br> 
+            
+            <div><img id="faas-policy-03" src="common/images/faas-policy-03.png" class="img_right"
+
+                      style="width: 150px;" onclick="displayPopup(id)"></div>   
+          <p>Log in to the Console as a tenancy administrator and under <strong>Governance and Administration</strong>, go to <strong>Identity</strong> and click <strong>Policies</strong> and then:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Select the tenancy's root compartment, and create two policies to give access to repositories in Oracle Cloud Infrastructure Registry:</p>
+          <p>•&nbsp;a policy to give users access to repositories:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>Allow group &lt;group-name&gt; to manage repos in tenancy</code></small></span></p>
+          </div>
+          <p>•&nbsp;a policy to give Oracle Functions access to repositories:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>Allow service FaaS to read repos in tenancy</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Select the tenancy's root compartment, and create a policy to give the Oracle Functions service access to the network resources that will be created:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>Allow service FaaS to use virtual-network-family in compartment &lt;compartment-name&gt;</code></small></span></p>
+          </div>
+        <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Select the compartment in which network resources and Oracle Functions resources will be created, and create two policies to give users access to those resources:</p>
+          <p>•&nbsp;a policy to give users access to network resources:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>Allow group &lt;group-name&gt; to use virtual-network-family in compartment &lt;compartment-name&gt; </code></small></span></p>
+          </div>
+          <p>•&nbsp;a policy to give users access to Oracle Functions resources:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>Allow group &lt;group-name&gt; to manage functions-family in compartment &lt;compartment-name&gt; </code></small></span></p>
+          </div>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingpolicies.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+      </section>
+      <section id="navTrigger" class="anim">
+        <h2 data-overview="step2Overview">A. Set up your <strong>client</strong></h2>
+        <div class="white_box" id="step2-1">
+          <h4><span class="lrg_number_circle">1</span>Set up signing key</h4>
+          <br>
+          <p>Log in to your Development Environment/Terminal and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create a hiden directory where you are going to store your private and public keys</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd ~</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ mkdir .oci</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd .oci</code></small></span></p>
+          </div>
+            
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Generate a private key encrypted with a passphrase that you provide by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ openssl genrsa -out ~/.oci/&lt;private-key-file-name&gt;.pem -aes128 2048</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Change permissions on the file to ensure that only you can read it. Choose &lt;private-key-file-name&gt; for your convinience, for instance oci-private-key.pem :</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ chmod go-rwx ~/.oci/&lt;private-key-file-name&gt;.pem</code></small></span></p>
+          </div>
+            
+        <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Remember the passpord that you entered and store it in a note. You are going to use it later</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Generate a public key (encrypted with the same passphrase that you provided when creating the private key, and in the same location as the private key file) by entering. Remember to substitute the names for private and public key files:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ openssl rsa -pubout -in ~/.oci/&lt;private-key-file-name&gt;.pem -out ~/.oci/&lt;public-key-file-name&gt;.pem</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Copy the contents of the public key file you just created, by entering a line bellow and store it in a note:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cat ~/.oci/&lt;public-key-file-name&gt;.pem | pbcopy</code></small></span></p>
+          </div>
+            
+
+              
+          <div><img id="faas-api-keys-03" src="common/images/faas-api-keys-03.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+
+            
+          <div><img id="faas-api-keys-1" src="common/images/faas-api-keys-1.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+            
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            
+           <br>
+ 
+          <p>Log in to the Console as an API developer, open the <strong>User</strong> menu (<img
+
+              src="common/images/faas-usermenu.png" alt="User menu icon">) and go to <strong>User Settings</strong>. On the <strong>API Keys</strong> page, click <strong>Add Public Key</strong>. Paste the public key's value into the window and click <strong>Add</strong>. The key is uploaded and its fingerprint is displayed.</p>
+            
+          <br>
+          <br>
+        
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            
+          <div><img id="API_key" src="common/images/API_key.png" class="img_right"
+
+              style="width: 150px;" title="API_key" alt="API_key" onclick="displayPopup('API_key')"></div>
+            
+          
+          <p>After your API Key is being generated, copy <Strong>Fingerprint</Strong>  and paste it in a note.</p>
+            
+            
+
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="http://sandboxes.tc.aka.r0.grungy.us/iaas/Content/Functions/Tasks/functionssetupapikey.htm?bundle=ap-functions">documentation</a> for more details.</p>  -->
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="https://www.oracle.com/webfolder/technetwork/tutorials/infographics/oci_faas_gettingstarted_quickview/OCI_Functions_User_Guide.pdf#page=35">documentation</a> for more details.</p> --> </div>
+          
+        <div class="white_box" id="step2-2">
+          <h4><span class="lrg_number_circle">2</span>Set up OCI profile</h4>
+          <br>
+          <br>
+          <div><img id="oci-login" src="common/images/oci-login.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="oci-login2" src="common/images/oci-login2.png" class="img_right2"
+
+              style="width: 150px;"  onclick="displayPopup(id)"></div> 
+
+
+         <div class="check_circle"><img src="common/images/check_blue.png"
+              alt="check mark"></div>
+          <p>Log into the OCI Console to access an information your are going to use bellow</p>
+            
+          <br>
+          <div><img id="oci-login3" src="common/images/oci-login3.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="oci-login4" src="common/images/oci-login4.png" class="img_right2"
+
+              style="width: 150px;"  onclick="displayPopup(id)"></div>         
+            
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Then open the file ~/.oci/config in a text editor. (If the directory and/or the file don't already exist, create them).</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd ~/.oci</code></small></span></p>
+          </div>            
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ vi config</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small>i - insert text before the current cursor position</small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small>:wq - to save and exit</small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Add a new profile to the ~.oci/config file as follows:</p>
+                      
+          <div><img id="profile" src="common/images/profile.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+            
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>[&lt;profile-name&gt;]<br>
+                    user=&lt;user-ocid&gt;<br>
+                    fingerprint=&lt;public-key-fingerprint&gt;<br>
+                    key_file=&lt;full-path-to-private-key-pem-file&gt;<br>
+                    tenancy=&lt;tenancy-ocid&gt;<br>
+                    region=&lt;region-name&gt;<br>
+                    pass_phrase=&lt;passphrase&gt;</code></small></span></p>
+          </div>
+          <br>
+          <p>You can find the necessary information for creating a user profile as follows:</p>
+          <br>
+          <div><img id="user" src="common/images/user.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="tenancy2" src="common/images/tenancy2.png" class="img_right2"
+
+              style="width: 150px;"  onclick="displayPopup(id)"></div> 
+          <div><img id="region" src="common/images/region.png" class="img_right3"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+            
+          <p>See documentation for creating a<a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsconfigureocicli.htm" target="_blank"> Profile in the Oracle Cloud Infrastructure CLI Configuration File</a> for more details.</p>
+</div>
+          
+          <br>
+          <br>
+          <br>
+          
+          
+        <div class="white_box" id="step2-3">
+          <h4><span class="lrg_number_circle">3</span>Install and start Docker</h4>
+          <br>
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Confirm that Docker is installed by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ docker version</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>If you see an error message indicating that Docker is not installed, you have to install Docker before proceeding. See the <a
+
+              href="https://docs.docker.com/">Docker documentation</a> for your platform (for Oracle Linux, see <a
+
+              href="https://docs.oracle.com/cd/E52668_01/E87205/html/docker_install_upgrade.html">here</a>).</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Assuming Docker is installed, go to the <a href="https://github.com/fnproject/fn#pre-requisites">Prerequisites section of the Fn Project home page on GitHub</a> and confirm that the installed version of Docker is at least the minimum version specified there. If not, re-install Docker before proceeding.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Launch the standard hello-world Docker image as a container to confirm that Docker is running by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ docker run hello-world<br>
+                  </code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>If you see an error message indicating that Docker is not running, you have to start the Docker daemon before proceeding. See the <a
+
+              href="https://docs.docker.com/">Docker documentation</a>.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsstartdocker.htm" target="_blank">documentation</a> for more details.</p>
+</div>  
+          
+                  <div class="white_box" id="step2-4">
+          <h4><span class="lrg_number_circle">4</span>Install Fn Project CLI</h4>
+          <br>
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Open the <a href="https://github.com/fnproject/cli/blob/master/README.md" target="_blank">Fn Project CLI README.md</a> file on GitHub and follow the appropriate instructions for installing the Fn Project CLI. As a convenient overview, the instructions are summarized below:</p>
+          <p>•&nbsp;<strong>MacOS using Homebrew:</strong> Enter:</p>
+          <div style="padding-left: 1em;">
+            <p><small><span style="white-space: nowrap;"><code>$ brew install fn</code></span></small></p>
+          </div>
+          <p>•&nbsp;<strong>Linux or MacOS:</strong> Enter:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ curl -LSs https://raw.githubusercontent.com/fnproject/cli/master/install | sh</code></small></span></p>
+          </div>
+          <p>•&nbsp;<strong>Linux, MacOS, or Windows:</strong> Download and run the binary from the <a
+
+              href="https://github.com/fnproject/cli/releases">Fn Project Releases page on GitHub</a>.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Confirm that the CLI has been installed by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn version</code></small></span></p>
+          </div>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsinstallfncli.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+          
+        <div class="white_box" id="step2-5">
+          <h4><span class="lrg_number_circle">5</span>Create and configure Fn Project CLI context</h4>
+          <br>
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create the new Fn Project CLI context in your .oic directory by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn create context &lt;my-context&gt; --provider oracle</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Specify that the Fn Project CLI is to use the new context by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn use context &lt;my-context&gt;</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+                  <div><img id="compartment1" src="common/images/compartment1.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+                  <div><img id="compartment2" src="common/images/compartment2.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+
+          <p>Configure the new context with the OCID of the compartment you want to own deployed functions:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn update context oracle.compartment-id &lt;compartment-ocid&gt;</code></small></span></p>
+          </div>
+            <br>
+            <br>
+
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Configure the new context with the api-url endpoint to use when calling the <span
+
+              class="ProductFn Project">OCI</span> API by entering:</p>
+          <div><img id="registry" src="common/images/registry.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div style="padding-left: 1em;">
+            <p><small><span style="white-space: nowrap;"><code>$ fn update context api-url &lt;api-endpoint&gt;</code></span></small></p>
+          </div>
+          <p>For example:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn update context api-url https://functions.us-phoenix-1.oraclecloud.com</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Configure the new context with the address of the Docker registry and repository that you want to use with Oracle Functions by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn update context registry &lt;region-code&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;repo-name&gt;</code></small></span></p>
+          </div>
+		  <p>where &lt;tenancy-namespace&gt; is the tenancy's auto-generated Object Storage namespace string shown on the Tenancy Information page.</p>
+          <p>For example:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn update context registry phx.ocir.io/ansh81vru1zp/acme-repo</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Configure the new context with the name of the profile you've created for use with Oracle Functions by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn update context oracle.profile &lt;profile-name&gt;</code></small></span></p>
+          </div>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatefncontext.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+          
+        <div class="white_box" id="step2-6">
+          <h4><span class="lrg_number_circle">6</span>Generate auth token</h4>
+          <br>
+            
+        <div><img id="faas-auth-tokens-03" src="common/images/faas-auth-tokens-03.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+                
+            
+          <p>Log in to the Console as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Open the <strong>User</strong> menu (<img src="common/images/faas-usermenu.png"
+
+              alt="User menu icon">) and go to <strong>User Settings</strong>. On the <strong>Auth Tokens</strong> page, click <strong>Generate Token</strong>.&nbsp;</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Enter a meaningful description for the auth token in the Generate Token dialog, and click <strong>Generate Token</strong>. The new auth token is displayed.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Copy the auth token immediately to a secure location from where you can retrieve it later, because you won't see the auth token again in the Console.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Close the Generate Token dialog.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionsgenerateauthtokens.htm" target="_blank">documentation</a> for more details.</p>
+ </div>
+        <div class="white_box" id="step2-7">
+          <h4><span class="lrg_number_circle">7</span>Log in to Registry</h4>
+          <br>
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Log in to Oracle Cloud Infrastructure Registry by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ docker login &lt;region-code&gt;.ocir.io</code></small></span></p>
+          </div>
+          <p>For example:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ docker login phx.ocir.io</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            <div><img id="tenancy1" src="common/images/tenancy1.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+        <div><img id="username" src="common/images/username.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+          <p>When prompted, enter the name of the user you will be using with Oracle Functions to create and deploy functions, in the format &lt;tenancy-namespace&gt;/&lt;username&gt;. For example, ansh81vru1zp/jdoe@acme.com. Check the pictures on the right hand side to see where to find tenancy-namespace and username.</p>
+            
+            
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>When prompted for a password, enter the user's <span class="ProductProductName">Oracle Cloud Infrastructure</span> auth token that you created in a previous step #6.</p>
+          <p>You're now ready to start creating, deploying, and invoking functions.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionslogintoocir.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+        <div class="white_box" id="step2-8">
+          <h4><span class="lrg_number_circle">8</span>Set up oci-curl</h4>
+          <br>
+          <p>Log in to your development environment as an API developer and:</p>
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Go to <a href="oci-curl" target="_blank" tabindex="0">signing_sample_bash</a> and copy the contents of the file.</p>
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Paste what you just copied into a new file. The file name and location are up to you, but the instructions assume ~/oci-curl/oci-curl.sh.</p>
+          <p>If you do not have oci-curl.sh created in your Home directory, create one:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd ~</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd ../../usr/local/bin</code></small></span></p>
+          </div> 
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ vi oci-curl</code></small></span></p>
+          </div>    
+          <p>Paste signing_sample_bash content into oci-curl</p>
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Replace the sample credentials (tenancyId, authUserId, keyFingerprint, privateKeyPath) in the following code in the oci-curl.sh file with those of the user account that you want to create API gateways and deploy APIs:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code># TODO: update these values to your own<br>
+                    local tenancyId="ocid1.tenancy.oc1..aaaaaaaab______dsq";<br>
+                    local authUserId="ocid1.user.oc1..aaaaaaaas______o3r";<br>
+                    local keyFingerprint="20:3b:97:13:55:1c:5b:0d:d3:37:d8:50:4e:c5:3a:34";<br>
+                    local privateKeyPath="/Users/someuser/.oci/oci_api_key.pem";</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check.png"
+
+              alt="check mark"></div>
+          <p>Save and close the file.</p>
+          <br>
+      </section>
+          
+      <section id="navTrigger" class="anim">
+        <h2 data-overview="step3Overview">B. Create, deploy, and invoke your <strong>function</strong></h2>
+        <div class="white_box" id="step3-1">
+          <h4><span class="lrg_number_circle">1</span>Create your first application</h4>
+          <br>
+
+        
+          <!--          <p>Log in to the Console as a functions developer and under <strong>Solutions, Platform and Edge</strong>, go to <strong>Developer Services</strong> and click <strong>Functions</strong> and:</p> -->
+          <p>Log in to the Console as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Go to oracle Functions landing page at https://console.us-ashburn-1.oraclecloud.com/functions. Select the region you intend to use for Oracle Functions(recommended to be the same region as the Docker registry specified in the Fn Project CLI.) </p>
+         <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            <div><img id="faas-application-03" src="common/images/faas-application-03.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+          <p>Select the compartment specified in the Fn Project CLI context. Under <strong>Applications</strong> select Create Application and fill in the fields with NAME, VCN, and SUBNETS information as it shown on the right side picture.</p>
+
+          <p>•&nbsp;<code>helloworld-app</code> as the name for the new application. You'll deploy your first function in this application, and specify this application when invoking the function.</p>
+          <p>•&nbsp;The VCN and subnet in which to run the function.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Click <strong>Create</strong>.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingfirst.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+        <div class="white_box" id="step3-2">
+          <h4><span class="lrg_number_circle">2</span>Create your first function</h4>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create a folder where you are going to save function related files. Use the name for the folder as the name you used Fn Project CLI.</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ mkdir helloworld-app</code></small></span></p>
+          </div> 
+                      <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd helloworld-app</code></small></span></p>
+          </div>
+          <br>
+          <div><img id="faas-init-helloworld-func-03" src="common/images/faas-init-helloworld-func-03.png" class="img_right"
+
+      style="width: 150px;" onclick="displayPopup(id)"></div> 
+            
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create a helloworld java function by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn init --runtime java helloworld-func</code></small></span></p>
+          </div>
+          <p>A directory called helloworld-func is created, containing:</p>
+          <p>• a function definition file called func.yaml</p>
+          <p>• a /src directory containing source files and directories for the helloworld function</p>
+          <p>• a Maven configuration file called pom.xml that specifies the dependencies required to compile the function</p>
+          <p>• in a scope of this tutorial, you create java function. Yet, you can create function type based on your needs.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingfirst.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+        <div class="white_box" id="step3-3">
+          <h4><span class="lrg_number_circle">3</span>Deploy your first function</h4>
+          <br>
+            
+            <div><img id="faas-deploy-helloworld-func-03" src="common/images/faas-deploy-helloworld-func-03.png" class="img_right"
+
+      style="width: 150px;" onclick="displayPopup(id)"></div> 
+            
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Change directory to the helloworld-func directory created in the previous step:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd helloworld-func</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Enter the following single Fn Project command to build the function and its dependencies as a Docker image called helloworld-func, push the image to the specified Docker registry, and deploy the function to Oracle Functions in the helloworld-app application that you created earlier:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn deploy --app helloworld-app</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            
+          <div><img id="faas-registry-03" src="common/images/faas-registry-03.png" class="img_right"
+
+      style="width: 150px;" onclick="displayPopup(id)"></div> 
+            
+          <p>(Optional) Confirm that the helloworld-func image has been pushed to Oracle Cloud Infrastructure Registry by logging in to the Console as a functions developer. Under <strong>Solutions and Platform</strong>, go to <strong>Developer Services</strong> and click <strong>Registry</strong>. Choose the registry's region, then click the name of the repository you specified in the Fn Project CLI context to see the helloworld-func function within it. </p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+            
+          <div><img id="faas-functions-02" src="common/images/faas-functions-02.png" class="img_right"
+
+      style="width: 150px;" onclick="displayPopup(id)"></div> 
+
+          <!--          <p>(Optional) Confirm that the function has been deployed to Oracle Functions by logging in to the Console as a functions developer. Under <strong>Solutions, Platform and Edge</strong>, go to <strong>Developer Services</strong> and click <strong>Functions</strong>. Select the compartment you specified in the Fn Project CLI context, then click the helloworld-app on the Applications page to see that the helloworld-func function has been deployed to Oracle Functions.</p> -->
+          <p>(Optional) Confirm that the function has been deployed to Oracle Functions by logging in to the Console as a functions developer. Under <strong>Solutions and Platform</strong>, go to <strong>Developer Services</strong> and click <strong>Functions</strong>. Select the compartment you specified in the Fn Project CLI context, then click the helloworld-app on the Applications page to see that the helloworld-func function has been deployed to Oracle Functions.</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingfirst.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+        <div class="white_box" id="step3-4">
+          <h4><span class="lrg_number_circle">4</span>Invoke your first function</h4>
+          <br>
+            
+          <div><img id="faas-invoke-helloworld-func-03" src="common/images/faas-invoke-helloworld-func-03.png" class="img_right"
+
+      style="width: 150px;" onclick="displayPopup(id)"></div> 
+            
+          <p>Log in to your development environment as a functions developer and:</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Invoke the helloworld-func function in the helloworld-app that you created earlier by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ fn invoke helloworld-app helloworld-func</code></small></span></p>
+          </div>
+          <p>The 'Hello World !' message is displayed.</p>
+          <p>Congratulations! You've just created, deployed, and invoked your first function using Oracle Functions!</p>
+          <br>
+          <p>See <a href="https://docs.cloud.oracle.com/iaas/Content/Functions/Tasks/functionscreatingfirst.htm" target="_blank">documentation</a> for more details.</p>
+</div>
+          </section>
+
+       <section id="navTrigger" class="anim">
+        <h2 data-overview="step3Overview">D. Create, deploy, and call your <strong>API</strong></h2>
+<!--
+        <div class="white_box" id="step4-1">
+          <h4><span class="lrg_number_circle">1</span>Create your first API gateway</h4>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Define the API gateway in a JSON file as follows:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>{<br>
+                    &nbsp;&nbsp;"displayName": "acme-api-gateway",<br>
+                    &nbsp;&nbsp;"endpointType": "PUBLIC",<br>
+                    &nbsp;&nbsp;"compartmentId": "&lt;compartment-ocid&gt;",<br>
+                    &nbsp;&nbsp;"subnetId": "&lt;subnet-ocid&gt;"<br>
+                    } </code></small></span></p>
+          </div>
+          <p>where:</p>
+          <p>•&nbsp;<small><code>&lt;compartment-ocid&gt;</code></small> is the OCID of the compartment you created earlier.</p>
+          <p>•&nbsp;<small><code>&lt;subnet-ocid&gt;</code></small> is the OCID of the regional subnet you created earlier, in which to create the new API gateway.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Save the JSON file as <code>acme-api-gateway.json</code></p>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create the API gateway by specifying the JSON file in a POST request to the API Gateway REST API:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com post ./acme-api-gateway.json "/20190501/gateways"</code></small></span> </p>
+          </div>
+          <p>The response to the request includes an OCID as the id of the new API gateway.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Use the API gateway's OCID to confirm that the API gateway is active:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com get "/20190501/gateways/&lt;gateway-ocid&gt;"</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Make a note of the API gateway's hostname returned in the response to the previous request, as you'll need it later.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>When the API gateway is active, go on to the next step.</p>
+          <br>
+          <br> </div>
+-->
+        <div class="white_box" id="step4-1">
+          <h4><span class="lrg_number_circle">1</span>Define your first API deployment</h4>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Define details of the API deployment in a JSON file, in the format:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>{<br>
+                    &nbsp;&nbsp;"displayName": "acme-api-deployment",<br>
+                    &nbsp;&nbsp;"gatewayId": "&lt;gateway-ocid&gt;",<br>
+                    &nbsp;&nbsp;"compartmentId": "&lt;compartment-ocid&gt;",<br>
+                    &nbsp;&nbsp;"pathPrefix": "/v1",<br>
+                    &nbsp;&nbsp;"specification": {&lt;api-specification&gt;}<br>
+                    } </code></small></span></p>
+          </div> 
+          <div><img id="term_api" src="common/images/term_api.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <br>
+          <p>where:</p>
+          <p>•&nbsp;<small><code>&lt;gateway-ocid&gt;</code></small> is the OCID of the gateway you created in which to create the new API deployment.</p>
+          <p>•&nbsp;<small><code>&lt;compartment-ocid&gt;</code></small> is the OCID of the compartment in which to create the new API deployment.</p>
+          <p>•&nbsp;<small><code>&lt;api-specification&gt;</code></small> is a simple API specification. At a minimum, include a <small><code>{routes:}</code></small> section containing a path, one or more methods, and the definition of a back-end. The example below assumes you have already deployed a Hello World function to Oracle Functions.</p>
+
+          <p>For example:</p>
+            
+          <p>
+            <a href="helloworld-func.json" target="_blank" tabindex="0">Download File</a>
+          </p>
+          <br>
+          <div><img id="function-id" src="common/images/function-id.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="function-id2" src="common/images/function-id2.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="function-id3" src="common/images/function-id3.png" class="img_right3"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+            
+          <p>In downloaded file you need to change <strong>functionId</strong></p>
+          <p>Go to oracle Functions landing page. Fund your newly creayed function and copy its <strong>OCID</strong>. For your reference, check the pictures on the right hand side.
+            </p>
+        
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create an API deployment folder apic in the directory where you stored your <strong>helloworld-func</strong></p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd helloworld-app</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ mkdir apis</code></small></span></p>
+          </div>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ cd apis</code></small></span></p>
+          </div>
+          <p>Save the JSON file as <code>helloworld-func.json</code> in apic folder. You'll use this file in the next step to create the API deployment.</p>
+         <br>
+        </div>
+        <div class="white_box" id="step4-3">
+          <h4><span class="lrg_number_circle">2</span>Create your first API deployment</h4>
+          <br>  
+          
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Create the API deployment by specifying the JSON file containing the API definition (in our case its helloworld-func.json) in a POST request to the API Gateway REST API:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com post ./helloworld-func.json "/20190501/deployments"</code></small></span></p>
+          </div>
+          <br>
+          <div><img id="API_deployment" src="common/images/API_deployment.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div> 
+          <br>
+          <p>The response to the request includes an OCID as the id of the new API deployment.</p>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Use the API deployment's OCID to confirm that the API deployment is active:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com get "/20190501/deployments/&lt;deployment-ocid&gt;"</code></small></span></p>
+          </div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>When the API deployment is active, go on to the next step.</p>
+          <br>
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="http://sandboxes.tc.aka.r0.grungy.us/iaas/Content/Functions/Tasks/functionscreatingbasic.htm?bundle=ap-functions">documentation</a> for more details.</p>  -->
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="https://www.oracle.com/webfolder/technetwork/tutorials/infographics/oci_faas_gettingstarted_quickview/OCI_Functions_User_Guide.pdf#page=54">documentation</a> for more details.</p> --> </div>
+        <div class="white_box" id="step4-4">
+          <h4><span class="lrg_number_circle">3</span>Call your first API</h4>
+          <br>
+          <div><img id="term_response" src="common/images/term_response.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>Open a terminal window and call the API by entering:</p>
+          <div style="padding-left: 1em;">
+            <p><span style="white-space: nowrap;"><small><code>$ curl -k -X GET https://&lt;gateway-hostname&gt;/v1/hello/</code></small></span></p>
+          </div>
+          <p>where <small><code>&lt;gateway-hostname&gt;</code></small> is the hostname of the gateway you created on which to create the new API deployment. For example, <code><small>laksjd.apigateway.us-phoenix-1.oci.customer-oci.com</small></code></p>
+          <div><img id="endpoint" src="common/images/endpoint.png" class="img_right"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="endpoint2" src="common/images/endpoint2.png" class="img_right2"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <div><img id="endpoint3" src="common/images/endpoint3.png" class="img_right3"
+
+              style="width: 150px;" onclick="displayPopup(id)"></div>
+          <br>
+          <div class="check_circle"><img src="common/images/check_blue.png"
+
+              alt="check mark"></div>
+          <p>You can use Terminal, Web Browser, or Postman to call your API</p>
+          <br>
+          <br>
+          <p>Congratulations! You've just created your first API gateway and API deployment, and called your first API using the API Gateway service!</p>
+          <br>
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="http://sandboxes.tc.aka.r0.grungy.us/iaas/Content/Functions/Tasks/functionscreatingbasic.htm?bundle=ap-functions">documentation</a> for more details.</p>  -->
+          <!--          <p style="font-size: 80%;text-align: left;">See <a href="https://www.oracle.com/webfolder/technetwork/tutorials/infographics/oci_faas_gettingstarted_quickview/OCI_Functions_User_Guide.pdf#page=54">documentation</a> for more details.</p> --> </div>
+<!--
+        <div class="white_box" id="step3-5">
+          <h4><span class="lrg_number_circle">4</span>Next steps</h4>
+          <br>
+          <p>Now that you've created, deployed, and called an API, read the <a
+
+              href="https://confluence.oci.oraclecorp.com/display/APIGW/Internal+Limited+Availability?preview=/92548534/106052172/APIGW-PDF-internal-la-latest.pdf">???API Gateway User Guide???</a> to find out more about:</p>
+          <p>• managing API gateways and API deployments (see "Listing API Gateways and API Deployments", "Updating...", "Deleting...")</p>
+          <p>•&nbsp;limiting the number of requests (see "Limiting the Number of Requests to API Gateway Back Ends")</p>
+          <p>•&nbsp;modifying requests and responses (see "Modifying Incoming Requests and Outgoing Responses")</p>
+          <p>•&nbsp;validating requests before sending them to a back end (see "Adding Request Validation to APIs")</p>
+          <p>•&nbsp;confirming API caller identity and permissions (see "Adding Authentication and Authorization to APIs")</p>
+</div>
+-->
+      </section>
+          
+      <!-- DO NOT EDIT -->
+      <section class="anim2">
+        <div class="white_box">
+          <h4><img src="common/images/green_check.png" valign="center"
+
+              alt="">&nbsp;You're done!</h4>
+        </div>
+      </section>
+ 
+    </article>
+ 
+    <script language="javascript">
+        var s_prefix = "Infographic";
+        if (typeof (document.title) != "undefined") {
+            var s_pageName = s_prefix + ":" + document.title};
+        
+        function displayPopup(id){ 
+            var modal = document.getElementById("myModal");
+
+            // Get the image and insert it inside the modal - use its "alt" text as a caption
+            var img = document.getElementById(id);
+            var modalImg = document.getElementById("img");
+            
+              modal.style.display = "block";
+              modalImg.src = img.src;
+            
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() { 
+              modal.style.display = "none";
+            }
+
+            
+            
+        }
+    </script>
+    <script type="text/javascript" src="common/js/ora_docs.js"></script>
+
+  </body>
+</html>

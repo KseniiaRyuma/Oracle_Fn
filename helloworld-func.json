@@ -1,0 +1,20 @@
+{
+    "displayName": "put-object",
+    "gatewayId": "ocid1.apigateway.oc1.phx.amaaaaaa6d6vpzyahnpp4dygyixkpmiabywenpnwqgcekuwctmd47wzidu3a",
+    "compartmentId" : "ocid1.compartment.oc1..aaaaaaaatmii6j37xo53dkk2m7vww5gnujpgz3dlnrgprkb5sao7xy6ltz7a",
+    "pathPrefix": "/v1002",
+    "specification": {
+        "routes":[
+            {
+                "path": "/putobject",
+                "methods": [
+                    "PUT"
+                ],
+                "backend": {
+                    "type": "ORACLE_FUNCTIONS_BACKEND",
+                    "functionId": "ocid1.fnfunc.oc1.phx.aaaaaaaaadfrjywpzei3peirkkjout3o4bditgfy23mzlhlncxtqa45567fq"
+                }
+            }
+        ]
+    }
+}

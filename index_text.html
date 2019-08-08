@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Oracle Cloud Infrastructure API Gateway - Overview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How to get started using API Gateway.">
+  </head>
+  <body>
+    <h1>Oracle Cloud Infrastructure API Gateway (Limited Availability Release)<br>
+      Set up, creation, and deployment</h1>
+    <h2>A. Set up your tenancy</h2>
+    <h3>0. Subscribe tenancy to Phoenix region (Limited Availability Release only)</h3>
+    <p>To use the Limited Availability Release of the API Gateway service, your tenancy must be subscribed to the Phoenix region. Log in to the Console as a tenancy administrator and under Governance and Administration, go to Administration, then Tenancy Details, and then:</p>
+    <ul>
+      <li>On the Regions page, confirm that your tenancy is already subscribed to the Phoenix region.</li>
+      <li>If your tenancy is not yet subscribed to the Phoenix region, click the Subscribe To This Region button beside us-phoenix-1.</li>
+    </ul>
+    <h3>1. Create groups and users</h3>
+    <p>If suitable users and groups don't exist already, log in to the Console as a tenancy administrator and under Governance and Administration, go to Identity and then:</p>
+    <ul>
+      <li>Create a new group by clicking Groups and then Create Group.</li>
+      <li>Create a new user by clicking Users and then Create User.</li>
+      <li>Add a user to a group by clicking Groups, then the name of the group, and then Add User to Group.</li>
+    </ul>
+    <h3>2. Create compartment</h3>
+    <p>If a suitable compartment doesn't exist already, log in to the Console as a tenancy administrator and under Governance and Administration, go to Identity and then:</p>
+    <ul>
+      <li>Click Compartments and then Create Compartment.</li>
+	  <li>Make a note of the compartment's OCID, as you'll need it later.</li>
+    </ul>
+    <h3>3. Create VCN and subnets</h3>
+    <p>If a suitable VCN doesn't exist already, log in to the Console as a tenancy administrator and under Core Infrastructure, go to Networking and then:</p>
+    <ul>
+      <li>Click Virtual Cloud Networks and choose a compartment.</li>
+	            <li><p>Click Create Virtual Cloud Network, enter a name, select Create Virtual Cloud Network Plus Related Resources, and click Create Virtual Cloud Network.</p>
+          <p>Three public AD-specific subnets and an internet gateway are created, along with a default route table and a default security list. To ensure high availability, API gateways can only be created in regional subnets (not AD-specific subnets). So you have to create an additional regional subnet for API gateways, and add an additional rule to the VCN's default security list.</p></li>
+          <li><p>Click Create Subnet, enter a name, and select Regional (Recommended). Specify a CIDR block that provides a minimum of 32 free IP addresses, and select Public Subnet. Accept default values for other subnet properties, and click Create Subnet.&nbsp; </p></li>
+           <li><p>Make a note of the OCID of the subnet, as you'll need it later.</p></li>
+          <li><p>Add a new stateful ingress rule for the regional subnet to allow traffic on port 443. Click Security Lists, then click the name of the Default Security List for the VCN, then click Add Ingress Rules. Specify:</p>
+          <ul><li>Source Type: CIDR</li>
+          <li>Source CIDR: 0.0.0.0/0</li>
+          <li>IP Protocol: TCP</li>
+          <li>Source Port Range: All</li>
+          <li>Destination Port Range: 443</li></ul>
+          <p>Click Add Ingress Rules to add the new rule to the default security list.</p></ul>
+</li>
+    </ul>
+    <h3>4. Create IAM policies</h3>
+    <p>Log in to the Console as a tenancy administrator and under Governance and Administration, go to Identity and click Policies and then:</p>
+    <ul>
+      <li>Create two policies to give API developers access:</li>
+      <ul>
+        <li>Select the compartment that owns the network resources you've created and create a policy with one policy statement:</li>
+      </ul>
+      <ul>
+        <ul>
+          <li>Allow group &lt;group-name&gt; to use virtual-network-family in compartment &lt;compartment-name&gt;</li>
+        </ul>
+        <li>Select the compartment that will own API Gateway-related resources and create a policy with one policy statement:</li>
+        <ul>
+          <li>Allow group &lt;group-name&gt; to manage api-gateway-family in compartment &lt;compartment-name&gt;</li>
+        </ul>
+      </ul>
+      <li>Create a policy to give the API Gateway service access to network resources:</li>
+      <ul>
+        <li>Select the compartment that owns the network resources you've created and create a policy with one policy statement:</li>
+        <ul>
+          <li>Allow service apigateway to use virtual-network-family in compartment &lt;compartment-name&gt;</li>
+        </ul>
+      </ul>
+      <li>In this QuickStart, you create an API deployment that uses an existing Hello World function in Oracle Functions as a back end. When you deploy APIs that have functions defined in Oracle Functions as back ends, you have to create a policy to give the API Gateway service access to Oracle Functions:</li>
+      <ul>
+        <li>Select the compartment that owns Oracle Functions resources and create a policy with one policy statement:</li>
+        <ul>
+          <li>Allow service apigateway to use functions-family in compartment &lt;compartment-name&gt;</li>
+        </ul>
+      </ul>
+      <li>In this QuickStart, you create a public API gateway. When you create public API gateways, you have to create a policy to enable the API Gateway service to manage public IP addresses:</li>
+      <ul>
+        <li>Select the compartment that will own API Gateway-related resources and create a policy with one policy statement:</li>
+        <ul>
+          <li>Allow service apigateway to manage public-ips in compartment &lt;compartment-name&gt;</li>
+        </ul>
+      </ul>
+    </ul>
+    <h2>B. Set up your client</h2>
+    <h3>1. Set up signing key</h3>
+    <p>Log in to your development environment as an API developer and:</p>
+    <ul>
+      <li>
+        <p>Generate a private key encrypted with a passphrase that you provide by entering:</p>
+        <p>$ openssl genrsa -out ~/.oci/&lt;private-key-file-name&gt;.pem -aes128 2048</p>
+      </li>
+      <li>
+        <p>Change permissions on the file to ensure that only you can read it.</p>
+        <p>$ chmod go-rwx ~/.oci/&lt;private-key-file-name&gt;.pem</p>
+      </li>
+      <li>
+        <p>Generate a public key (encrypted with the same passphrase that you provided when creating the private key, and in the same location as the private key file) by entering:</p>
+        <p>$ openssl rsa -pubout -in ~/.oci/&lt;private-key-file-name&gt;.pem -out ~/.oci/&lt;public-key-file-name&gt;.pem</p>
+      </li>
+      <li>
+        <p>Copy the contents of the public key file you just created, by entering:</p>
+        <p>$ cat ~/.oci/&lt;public-key-file-name&gt;.pem | pbcopy</p>
+      </li>
+      <li>Log in to the Console as an API developer, open the User menu and go to User Settings. On the API Keys page, click Add Public Key. Paste the public key's value into the window and click Add. The key is uploaded and its fingerprint is displayed.</li>
+    </ul>
+    <h3>2. Set up oci-curl</h3>
+    Log in to your development environment as an API developer and:
+    <ul>
+      <li>Go to https://docs.cloud.oracle.com/iaas/Content/Resources/Assets/signing_sample_bash.txt and copy the contents of the file.</li>
+      <li>Paste what you just copied into a new file. The file name and location are up to you, but the instructions assume ~/oci-curl/oci-curl.sh.</li>
+      <li>Replace the sample credentials (tenancyId, authUserId, keyFingerprint, privateKeyPath) in the following code in the oci-curl.sh file with those of the user account that you want to create API gateways and deploy APIs:
+        <p># TODO: update these values to your own<br>
+          local tenancyId="ocid1.tenancy.oc1..aaaaaaaab______dsq";<br>
+          local authUserId="ocid1.user.oc1..aaaaaaaas______o3r";<br>
+          local keyFingerprint="20:3b:97:13:55:1c:5b:0d:d3:37:d8:50:4e:c5:3a:34";<br>
+          local privateKeyPath="/Users/someuser/.oci/oci_api_key.pem";</p>
+      </li>
+      <li>Save and close the file.</li>
+    </ul>
+    <h2>C. Create, deploy, and call your API</h2>
+    <h3>1. Create your first API gateway</h3>
+    <ul>
+      <li>
+        <p>Define the API gateway in a JSON file as follows:</p>
+       <p>{<br>
+        &nbsp; "displayName": "acme-api-gateway",<br>
+        &nbsp; "endpointType": "PUBLIC",<br>
+        &nbsp; "compartmentId": "&lt;compartment-ocid&gt;",<br>
+        &nbsp; "subnetId": "&lt;subnet-ocid&gt;"<br>
+        }</p>
+      <p>where:</p>
+      <ul>
+        <li>&lt;compartment-ocid&gt; is the OCID of the compartment you created earlier.</li>
+        <li>&lt;subnet-ocid&gt; is the OCID of the regional subnet you created earlier, in which to create the new API gateway.</li>
+      </ul>
+	  </li>
+      <li>Save the JSON file as acme-api-gateway.json</li>
+      <li>
+        <p>Create the API gateway by specifying the JSON file in a POST request to the API Gateway REST API:</p>
+        <p>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com post ./acme-api-gateway.json "/20190501/gateways"</p>
+		<p>The response to the request includes an OCID as the id of the new API gateway.</p>
+      </li>
+	  <li><p>Use the API gateway's OCID to confirm that the API gateway is active:</p>
+<p>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com get "/20190501/gateways/&lt;gateway-ocid&gt;"<p></li>
+<li>Make a note of the API gateway's hostname returned in the response to the previous request, as you'll need it later.</li>
+<li>When the API gateway is active, go on to the next step.</li>
+    </ul>
+    <h3>2. Define your first API deployment</h3>
+    <ul>
+      <li>
+        <p>Define details of the API deployment in a JSON file, in the format:</p>
+        <p> {<br>
+          &nbsp; "displayName": "acme-api-deployment",<br>
+          &nbsp; "gatewayId": "&lt;gateway-ocid&gt;",<br>
+          &nbsp; "compartmentId": "&lt;compartment-ocid&gt;",<br>
+          &nbsp; "pathPrefix": "/v1",<br>
+          &nbsp; "specification": {&lt;api-specification&gt;}<br>
+          }</p>
+        <p>where:</p>
+        <ul>
+          <li>&lt;gateway-ocid&gt; is the OCID of the gateway you created in which to create the new API deployment.</li>
+          <li>&lt;compartment-ocid&gt; is the OCID of the compartment in which to create the new API deployment.</li>
+          <li>&lt;api-specification&gt; is a simple API specification. At a minimum, include a {routes:} section containing a path, one or more methods, and the definition of a back-end. The example below assumes you have already deployed a Hello World function to Oracle Functions.</li>
+        </ul>
+        <p>For example:</p>
+        <p> {<br>
+          &nbsp; "displayName": "acme-api-deployment",<br>
+          &nbsp; "gatewayId": "ocid1.apigwgateway.oc1..aaaaaaaab______hga",<br>
+          &nbsp; "compartmentId": "ocid1.compartment.oc1..aaaaaaaa7______ysq",<br>
+          &nbsp; "pathPrefix": "/v1",<br>
+          &nbsp; "specification": {<br>
+          &nbsp;&nbsp;&nbsp; "routes": [<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "path": "/hello",<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "methods": [<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "GET"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ],<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "backend": {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "type": "ORACLE_FUNCTIONS_BACKEND",<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "functionId": "ocid1.fnfunc.oc1.phx.aaaaaaaaab______xmq"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp; ]<br>
+          &nbsp; }<br>
+          }</p>
+                <p>Tip: If a suitable Hello World function doesn't exist in Oracle Functions, you can specify a public API like https://api.weather.gov as the back end in the specification. For example:</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "backend": {<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type": "HTTP_BACKEND",<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"url": "https://api.weather.gov"<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</p>
+	  </li>
+      <li>Save the JSON file as acme-api-deployment.json. You'll use this file in the next step to create the API deployment.</li>
+    </ul>
+    <h3>3. Create your first API deployment<br>
+    </h3>
+    <ul>
+      <li>
+        <p>Create the API deployment by specifying the JSON file containing the API definition in a POST request to the API Gateway REST API:</p>
+        <p>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com post ./acme-api-deployment.json "/20190501/deployments"</p>
+		<p>The response to the request includes an OCID as the id of the new API deployment.</p>
+      </li>
+      <li>
+        <p>Use the API deployment's OCID to confirm that the API deployment is active:</p>
+        <p>$ oci-curl apigateway.us-phoenix-1.oci.oraclecloud.com get "/20190501/deployments/&lt;deployment-ocid&gt;"</p>
+      </li>
+      <li>
+        <p>When the API deployment is active, go on to the next step.</p>
+      </li>
+    </ul>
+    <h3>4. Call your first API</h3>
+    <ul>
+      <li>
+        <p>Open a terminal window and call the API by entering:</p>
+        <p>$ curl -k -X GET https://&lt;gateway-hostname&gt;/v1/hello</p>
+        <p>where &lt;gateway-hostname&gt; is the hostname of the gateway you created on which to create the new API deployment. For example, laksjd.apigateway.us-phoenix-1.oci.customer-oci.com</p>
+        <p>Congratulations! You've just created your first API gateway and API deployment, and called your first API using the API Gateway service!</p>
+      </li>
+    </ul>
+    <h3>5. Next steps</h3>
+    <p>Now that you've created, deployed, and called an API, read the <a
+
+        href="https://confluence.oci.oraclecorp.com/display/APIGW/Internal+Limited+Availability?preview=/92548534/106052172/APIGW-PDF-internal-la-latest.pdf">???API Gateway User Guide???</a> to find out more about:</p>
+    <ul>
+	<li>managing API gateways and API deployments (see "Listing API Gateways and API Deployments", "Updating...", "Deleting...")</li>
+      <li>limiting the number of requests (see "Limiting the Number of Requests to API Gateway Back Ends")</li>
+      <li>modifying requests and responses (see "Modifying Incoming Requests and Outgoing Responses")</li>
+      <li>validating requests before sending them to a back end (see "Adding Request Validation to APIs")</li>
+      <li>confirming API caller identity and permissions (see "Adding Authentication and Authorization to APIs")<br>
+      </li>
+    </ul>
+    <ul>
+    </ul>
+    <p>You're done!</p>
+    <h2>Find out more about Oracle Service_Name Service</h2>
+    <h3>Product Information</h3>
+    <p> <a href="https://confluence.oci.oraclecorp.com/display/APIGW/Internal+Limited+Availability?preview=/92548534/106052172/APIGW-PDF-internal-la-latest.pdf">???API Gateway User Guide (PDF)???</a>, <a
+
+        href="https://cloud.oracle.com/cloud-infrastructure" target="_blank">cloud.oracle.com</a>, <a
+
+        href="https://docs.cloud.oracle.com/iaas/Content/home.htm" target="_blank">docs.cloud.oracle.com</a><a
+
+        href="https://github.com/fnproject/fn/" target="_blank"></a></p>
+    <h3>Attend Oracle Cloud Events</h3>
+    <p>See <a href="http://events.oracle.com/" target="_blank">events.oracle.com</a>, <a
+
+        href="https://blogs.oracle.com/cloud-infrastructure/" target="_blank">blogs.oracle.com</a></p>
+    <h3>Join the Community</h3>
+    <p>See <a href="https://cloud.oracle.com/community" target="_blank">Customer Community</a>, <a
+
+        href="https://cloud.oracle.com/forums" target="_blank">Forums</a></p>
+    <h3>Follow Oracle Cloud</h3>
+    <p><a href="https://www.facebook.com/OracleCloud" target="_blank">Facebook</a> | <a
+
+        href="https://twitter.com/hashtag/OracleCloudZone" target="_blank">Twitter</a> | <a
+
+        href="https://www.youtube.com/user/OracleCloudComputing" target="_blank">YouTube</a> </p>
+    <p> <a href="http://www.oracle.com/us/corporate/index.html" target="_blank">About Oracle</a> | <a
+
+        href="http://www.oracle.com/us/corporate/contact/index.html" target="_blank">Contact Us</a> | <a
+
+        href="http://www.oracle.com/us/legal/privacy/overview/index.html"
+
+        target="_blank">Legal Notices</a> | <a href="http://www.oracle.com/us/legal/terms/index.html"
+
+        target="_blank">Terms of Use</a> | <a href="http://www.oracle.com/us/legal/privacy/overview/index.html"
+
+        target="_blank">Your Privacy Rights</a> | <a href="https://www.oracle.com/corporate/citizenship/sustainability/index.html"
+
+        target="_blank">Sustainability</a> </p>
+    <br>
+    <p><a href="http://www.oracle.com/pls/topic/lookup?ctx=cpyr&amp;id=en">Copyright © 2019, Oracle and/or its affiliates. All rights reserved.</a></p>
+    <script language="javascript">
+            var s_prefix = "Infographic";
+            if (typeof (document.title) != "undefined") {
+                var s_pageName = s_prefix + ":" + document.title
+            }
+            ;
+        </script>
+    <script type="text/javascript" src="https://www.oracleimg.com/us/assets/metrics/ora_docs.js"></script>
+  </body>
+</html>
